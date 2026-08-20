@@ -35,19 +35,19 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-black">
+    <div className="flex flex-1 items-center justify-center px-4 py-12">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4 rounded-xl border border-zinc-300 p-6 dark:border-zinc-700"
+        className="flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-cyan-900/10 bg-white/50 p-6 backdrop-blur-md dark:border-cyan-300/10 dark:bg-slate-900/40"
       >
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">회원가입</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-800 dark:text-cyan-50">회원가입</h1>
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="이메일"
-          className="rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm dark:border-zinc-700"
+          className="rounded-lg border border-cyan-900/15 bg-white/50 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 dark:border-cyan-300/20 dark:bg-slate-900/40 dark:text-cyan-50 dark:placeholder:text-cyan-200/40"
         />
         <input
           type="password"
@@ -56,19 +56,19 @@ export default function SignupPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="비밀번호 (8자 이상)"
-          className="rounded-lg border border-zinc-300 bg-transparent px-3 py-2 text-sm dark:border-zinc-700"
+          className="rounded-lg border border-cyan-900/15 bg-white/50 px-3 py-2 text-sm text-slate-800 placeholder:text-slate-400 dark:border-cyan-300/20 dark:bg-slate-900/40 dark:text-cyan-50 dark:placeholder:text-cyan-200/40"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-zinc-900 px-5 py-2.5 font-medium text-white transition-opacity disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+          className="rounded-full bg-cyan-600 px-5 py-2.5 font-medium text-white shadow-sm shadow-cyan-900/20 transition-colors hover:bg-cyan-500 disabled:opacity-50 dark:bg-cyan-400 dark:text-slate-900 dark:hover:bg-cyan-300"
         >
           {loading ? "가입하는 중..." : "회원가입"}
         </button>
-        <p className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-center text-sm text-slate-600 dark:text-cyan-100/70">
           이미 계정이 있으신가요?{" "}
-          <Link href="/login" className="font-medium text-zinc-900 underline dark:text-zinc-50">
+          <Link href="/login" className="font-medium text-cyan-700 underline dark:text-cyan-300">
             로그인
           </Link>
         </p>

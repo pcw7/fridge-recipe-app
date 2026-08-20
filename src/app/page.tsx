@@ -140,19 +140,19 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-1 items-center bg-zinc-50 px-4 py-12 dark:bg-black">
+    <div className="flex flex-1 flex-col items-center px-4 py-12">
       <main className="flex w-full max-w-xl flex-col gap-6">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-800 dark:text-cyan-50">
             냉장고 재료 인식
           </h1>
-          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+          <p className="mt-2 text-slate-600 dark:text-cyan-100/70">
             냉장고 사진을 올리면 안에 있는 재료를 찾아드려요.
           </p>
         </div>
 
         <label
-          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-300 p-8 text-center transition-colors hover:border-zinc-400 dark:border-zinc-700 dark:hover:border-zinc-500"
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-400/40 bg-white/40 p-8 text-center backdrop-blur-md transition-colors hover:border-cyan-500/60 hover:bg-white/55 dark:border-cyan-300/25 dark:bg-slate-900/30 dark:hover:border-cyan-300/45 dark:hover:bg-slate-900/45"
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
             e.preventDefault();
@@ -168,7 +168,7 @@ export default function Home() {
               className="max-h-64 rounded-lg object-contain"
             />
           ) : (
-            <span className="text-zinc-500 dark:text-zinc-400">
+            <span className="text-slate-500 dark:text-cyan-100/50">
               클릭하거나 사진을 끌어다 놓으세요
             </span>
           )}
@@ -188,27 +188,27 @@ export default function Home() {
           <button
             onClick={recognizeIngredients}
             disabled={loading}
-            className="rounded-full bg-zinc-900 px-5 py-3 font-medium text-white transition-opacity disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded-full bg-cyan-600 px-5 py-3 font-medium text-white shadow-sm shadow-cyan-900/20 transition-colors hover:bg-cyan-500 disabled:opacity-50 dark:bg-cyan-400 dark:text-slate-900 dark:hover:bg-cyan-300"
           >
             {loading ? "재료를 인식하고 있어요..." : "재료 인식하기"}
           </button>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         {ingredients.length > 0 && (
-          <div className="flex flex-col gap-3">
-            <h2 className="font-medium text-zinc-900 dark:text-zinc-50">인식된 재료</h2>
+          <div className="flex flex-col gap-3 rounded-2xl border border-cyan-900/10 bg-white/40 p-4 backdrop-blur-md dark:border-cyan-300/10 dark:bg-slate-900/30">
+            <h2 className="font-medium text-slate-800 dark:text-cyan-50">인식된 재료</h2>
             <div className="flex flex-wrap gap-2">
               {ingredients.map((ingredient, index) => (
                 <span
                   key={`${ingredient}-${index}`}
-                  className="flex items-center gap-1 rounded-full bg-zinc-200 px-3 py-1 text-sm text-zinc-900 dark:bg-zinc-800 dark:text-zinc-50"
+                  className="flex items-center gap-1 rounded-full bg-cyan-100/80 px-3 py-1 text-sm text-cyan-900 dark:bg-cyan-400/15 dark:text-cyan-100"
                 >
                   {ingredient}
                   <button
                     onClick={() => removeIngredient(index)}
-                    className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50"
+                    className="text-cyan-700/70 hover:text-cyan-900 dark:text-cyan-200/60 dark:hover:text-cyan-50"
                     aria-label={`${ingredient} 삭제`}
                   >
                     ×
@@ -227,11 +227,11 @@ export default function Home() {
                   }
                 }}
                 placeholder="재료 직접 추가"
-                className="flex-1 rounded-full border border-zinc-300 bg-transparent px-4 py-2 text-sm dark:border-zinc-700"
+                className="flex-1 rounded-full border border-cyan-900/15 bg-white/50 px-4 py-2 text-sm text-slate-800 placeholder:text-slate-400 dark:border-cyan-300/20 dark:bg-slate-900/40 dark:text-cyan-50 dark:placeholder:text-cyan-200/40"
               />
               <button
                 onClick={addIngredient}
-                className="rounded-full border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+                className="rounded-full border border-cyan-900/15 px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-white/60 dark:border-cyan-300/20 dark:text-cyan-100 dark:hover:bg-cyan-400/10"
               >
                 추가
               </button>
@@ -240,21 +240,21 @@ export default function Home() {
             <button
               onClick={generateRecipes}
               disabled={recipeLoading}
-              className="rounded-full bg-zinc-900 px-5 py-3 font-medium text-white transition-opacity disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+              className="rounded-full bg-cyan-600 px-5 py-3 font-medium text-white shadow-sm shadow-cyan-900/20 transition-colors hover:bg-cyan-500 disabled:opacity-50 dark:bg-cyan-400 dark:text-slate-900 dark:hover:bg-cyan-300"
             >
               {recipeLoading ? "레시피를 생성하고 있어요..." : "레시피 추천받기"}
             </button>
           </div>
         )}
 
-        {recipeError && <p className="text-sm text-red-600">{recipeError}</p>}
+        {recipeError && <p className="text-sm text-red-600 dark:text-red-400">{recipeError}</p>}
 
         {rawRecipeText && (
-          <div className="flex flex-col gap-2 rounded-xl border border-zinc-300 p-4 dark:border-zinc-700">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="flex flex-col gap-2 rounded-2xl border border-cyan-900/10 bg-white/40 p-4 backdrop-blur-md dark:border-cyan-300/10 dark:bg-slate-900/30">
+            <p className="text-sm text-slate-500 dark:text-cyan-100/60">
               모델 응답을 정형화된 형식으로 해석하지 못해 원문을 그대로 보여드려요.
             </p>
-            <pre className="whitespace-pre-wrap text-sm text-zinc-900 dark:text-zinc-50">
+            <pre className="whitespace-pre-wrap text-sm text-slate-800 dark:text-cyan-50">
               {rawRecipeText}
             </pre>
           </div>
@@ -262,52 +262,52 @@ export default function Home() {
 
         {recipes && recipes.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="font-medium text-zinc-900 dark:text-zinc-50">추천 레시피</h2>
+            <h2 className="font-medium text-slate-800 dark:text-cyan-50">추천 레시피</h2>
             <div className="flex flex-col gap-3">
               {recipes.map((recipe, index) => {
                 const isSelected = selectedRecipeIndex === index;
                 return (
                   <div
                     key={`${recipe.name}-${index}`}
-                    className="rounded-xl border border-zinc-300 dark:border-zinc-700"
+                    className="rounded-2xl border border-cyan-900/10 bg-white/40 backdrop-blur-md dark:border-cyan-300/10 dark:bg-slate-900/30"
                   >
                     <button
                       onClick={() => setSelectedRecipeIndex(isSelected ? null : index)}
                       className="flex w-full items-center justify-between gap-3 p-4 text-left"
                     >
                       <div>
-                        <p className="font-medium text-zinc-900 dark:text-zinc-50">{recipe.name}</p>
-                        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                        <p className="font-medium text-slate-800 dark:text-cyan-50">{recipe.name}</p>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-cyan-100/60">
                           {recipe.cook_time_minutes > 0 && `약 ${recipe.cook_time_minutes}분`}
                           {recipe.cook_time_minutes > 0 && recipe.difficulty !== "정보 없음" && " · "}
                           {recipe.difficulty !== "정보 없음" && recipe.difficulty}
                         </p>
                       </div>
                       {recipe.missing_ingredients.length > 0 && (
-                        <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                        <span className="shrink-0 rounded-full bg-amber-100/80 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-400/15 dark:text-amber-200">
                           부족한 재료 {recipe.missing_ingredients.length}개
                         </span>
                       )}
                     </button>
 
                     {isSelected && (
-                      <div className="flex flex-col gap-3 border-t border-zinc-200 p-4 dark:border-zinc-800">
+                      <div className="flex flex-col gap-3 border-t border-cyan-900/10 p-4 dark:border-cyan-300/10">
                         {recipe.missing_ingredients.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                            <p className="text-sm font-medium text-slate-800 dark:text-cyan-50">
                               부족한 재료
                             </p>
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                            <p className="text-sm text-slate-600 dark:text-cyan-100/70">
                               {recipe.missing_ingredients.join(", ")}
                             </p>
                           </div>
                         )}
                         {recipe.steps.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                            <p className="text-sm font-medium text-slate-800 dark:text-cyan-50">
                               조리 순서
                             </p>
-                            <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-400">
+                            <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-slate-600 dark:text-cyan-100/70">
                               {recipe.steps.map((step, stepIndex) => (
                                 <li key={stepIndex}>{step}</li>
                               ))}
@@ -317,11 +317,11 @@ export default function Home() {
 
                         <div>
                           {saveStatus[index] === "saved" ? (
-                            <p className="text-sm text-emerald-600">저장했어요.</p>
+                            <p className="text-sm text-teal-600 dark:text-teal-300">저장했어요.</p>
                           ) : saveStatus[index] === "unauthorized" ? (
-                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                            <p className="text-sm text-slate-600 dark:text-cyan-100/70">
                               저장하려면{" "}
-                              <Link href="/login" className="font-medium underline">
+                              <Link href="/login" className="font-medium text-cyan-700 underline dark:text-cyan-300">
                                 로그인
                               </Link>
                               이 필요해요.
@@ -330,13 +330,15 @@ export default function Home() {
                             <button
                               onClick={() => saveRecipe(index, recipe)}
                               disabled={saveStatus[index] === "saving"}
-                              className="rounded-full border border-zinc-300 px-4 py-2 text-sm disabled:opacity-50 dark:border-zinc-700"
+                              className="rounded-full border border-cyan-900/15 px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-white/60 disabled:opacity-50 dark:border-cyan-300/20 dark:text-cyan-100 dark:hover:bg-cyan-400/10"
                             >
                               {saveStatus[index] === "saving" ? "저장 중..." : "레시피 저장"}
                             </button>
                           )}
                           {saveStatus[index] === "error" && (
-                            <p className="mt-1 text-sm text-red-600">저장에 실패했어요. 다시 시도해주세요.</p>
+                            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                              저장에 실패했어요. 다시 시도해주세요.
+                            </p>
                           )}
                         </div>
                       </div>

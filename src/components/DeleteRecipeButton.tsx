@@ -21,7 +21,7 @@ export default function DeleteRecipeButton({ recipeId }: { recipeId: string }) {
     <button
       onClick={handleDelete}
       disabled={deleting}
-      className="text-sm text-red-600 hover:underline disabled:opacity-50"
+      className="text-sm text-red-600 hover:underline disabled:opacity-50 dark:text-red-400"
     >
       {deleting ? "삭제 중..." : "삭제"}
     </button>
