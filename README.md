@@ -15,6 +15,10 @@
 |---|---|
 | ![홈 화면 라이트 모드](docs/screenshot-home-light.png) | ![홈 화면 다크 모드](docs/screenshot-home-dark.png) |
 
+실제 냉장고 사진을 올려 재료 인식 → 레시피 생성까지 이 앱으로 직접 돌려본 화면입니다. 사진은
+[Nicolas J. Barbier의 Unsplash 사진](https://unsplash.com/photos/an-open-refrigerator-filled-with-lots-of-food-3A0qRjOesX4)
+(Unsplash License, 자유 이용 가능)을 사용했습니다.
+
 <details>
 <summary>로그인 화면 보기</summary>
 
