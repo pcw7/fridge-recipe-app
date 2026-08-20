@@ -47,3 +47,7 @@ Learned from manual API testing before this app existed; apply these when writin
 - When sending Korean text to the API from a shell for manual testing, write the JSON body to a UTF-8
   file first and use `curl --data-binary @file` — embedding Korean directly in a shell command line has
   produced mojibake that the model then misinterpreted.
+
+OpenRouter API를 이용해서 실제 AI 모델이 이미지를 인식하고 레시피를 생성하게 해줘.
+매번 실행할때 마다 API가 정확히 작동했는지, AI 모델이 문제없이 실행되었는지를 파악하고,
+문제가 있다면 어떤 문제가 있는지를 보고해.

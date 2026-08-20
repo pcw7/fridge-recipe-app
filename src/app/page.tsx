@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { Recipe } from "./api/generate-recipes/route";
 
 export default function Home() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -10,6 +11,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [recipes, setRecipes] = useState<Recipe[] | null>(null);
+  const [rawRecipeText, setRawRecipeText] = useState<string | null>(null);
+  const [selectedRecipeIndex, setSelectedRecipeIndex] = useState<number | null>(null);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState<string | null>(null);
 
   function handleFile(file: File) {
     setError(null);
@@ -55,6 +62,9 @@ export default function Home() {
 
   function removeIngredient(index: number) {
     setIngredients((prev) => prev.filter((_, i) => i !== index));
+    setRecipes(null);
+    setRawRecipeText(null);
+    setSelectedRecipeIndex(null);
   }
 
   function addIngredient() {
@@ -62,6 +72,38 @@ export default function Home() {
     if (!trimmed) return;
     setIngredients((prev) => [...prev, trimmed]);
     setNewIngredient("");
+    setRecipes(null);
+    setRawRecipeText(null);
+    setSelectedRecipeIndex(null);
+  }
+
+  async function generateRecipes() {
+    if (ingredients.length === 0) return;
+    setRecipeLoading(true);
+    setRecipeError(null);
+    setRecipes(null);
+    setRawRecipeText(null);
+    setSelectedRecipeIndex(null);
+    try {
+      const res = await fetch("/api/generate-recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ingredients }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "레시피 생성에 실패했어요.");
+      }
+      if (data.recipes) {
+        setRecipes(data.recipes as Recipe[]);
+      } else {
+        setRawRecipeText(data.raw as string);
+      }
+    } catch (e) {
+      setRecipeError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했어요.");
+    } finally {
+      setRecipeLoading(false);
+    }
   }
 
   return (
@@ -160,6 +202,90 @@ export default function Home() {
               >
                 추가
               </button>
+            </div>
+
+            <button
+              onClick={generateRecipes}
+              disabled={recipeLoading}
+              className="rounded-full bg-zinc-900 px-5 py-3 font-medium text-white transition-opacity disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900"
+            >
+              {recipeLoading ? "레시피를 생성하고 있어요..." : "레시피 추천받기"}
+            </button>
+          </div>
+        )}
+
+        {recipeError && <p className="text-sm text-red-600">{recipeError}</p>}
+
+        {rawRecipeText && (
+          <div className="flex flex-col gap-2 rounded-xl border border-zinc-300 p-4 dark:border-zinc-700">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              모델 응답을 정형화된 형식으로 해석하지 못해 원문을 그대로 보여드려요.
+            </p>
+            <pre className="whitespace-pre-wrap text-sm text-zinc-900 dark:text-zinc-50">
+              {rawRecipeText}
+            </pre>
+          </div>
+        )}
+
+        {recipes && recipes.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <h2 className="font-medium text-zinc-900 dark:text-zinc-50">추천 레시피</h2>
+            <div className="flex flex-col gap-3">
+              {recipes.map((recipe, index) => {
+                const isSelected = selectedRecipeIndex === index;
+                return (
+                  <div
+                    key={`${recipe.name}-${index}`}
+                    className="rounded-xl border border-zinc-300 dark:border-zinc-700"
+                  >
+                    <button
+                      onClick={() => setSelectedRecipeIndex(isSelected ? null : index)}
+                      className="flex w-full items-center justify-between gap-3 p-4 text-left"
+                    >
+                      <div>
+                        <p className="font-medium text-zinc-900 dark:text-zinc-50">{recipe.name}</p>
+                        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                          {recipe.cook_time_minutes > 0 && `약 ${recipe.cook_time_minutes}분`}
+                          {recipe.cook_time_minutes > 0 && recipe.difficulty !== "정보 없음" && " · "}
+                          {recipe.difficulty !== "정보 없음" && recipe.difficulty}
+                        </p>
+                      </div>
+                      {recipe.missing_ingredients.length > 0 && (
+                        <span className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-900 dark:text-amber-200">
+                          부족한 재료 {recipe.missing_ingredients.length}개
+                        </span>
+                      )}
+                    </button>
+
+                    {isSelected && (
+                      <div className="flex flex-col gap-3 border-t border-zinc-200 p-4 dark:border-zinc-800">
+                        {recipe.missing_ingredients.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                              부족한 재료
+                            </p>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                              {recipe.missing_ingredients.join(", ")}
+                            </p>
+                          </div>
+                        )}
+                        {recipe.steps.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                              조리 순서
+                            </p>
+                            <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-400">
+                              {recipe.steps.map((step, stepIndex) => (
+                                <li key={stepIndex}>{step}</li>
+                              ))}
+                            </ol>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
