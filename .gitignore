@@ -42,3 +42,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# local sqlite database (contains real user data — never commit)
+/prisma/*.db
+/prisma/*.db-journal
+
+# prisma-installed agent skills: .claude/ and .windsurf/ are meant to be symlinks to .agents/skills,
+# but this git checkout has core.symlinks=false, so `git add` would dereference them and store full
+# duplicate copies. Keep .agents/skills as the single committed copy.
+/.claude/skills
+/.windsurf/skills

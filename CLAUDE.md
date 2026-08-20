@@ -11,10 +11,11 @@ documented in [PRD_step1.md](PRD_step1.md), [PRD_step2.md](PRD_step2.md), and [P
 
 1. Upload a fridge photo → recognize ingredients via OpenRouter (`google/gemma-4-26b-a4b-it:free`, vision)
 2. Generate recipes from the recognized ingredients via the same model (text-only)
-3. User profiles + saving recipes (backend/DB choice still open — see PRD_step3 "결정 필요 사항")
+3. User accounts (email/password) + saving recipes to a per-user list
 
-Stack: Next.js 16 (App Router, TypeScript, Tailwind CSS v4). Route Handlers under `src/app/api/*/route.ts`
-call OpenRouter server-side so `OPENROUTER_API_KEY` never reaches the client.
+Stack: Next.js 16 (App Router, TypeScript, Tailwind CSS v4), Prisma 7 + SQLite (via `@libsql/client`) for
+storage. Route Handlers under `src/app/api/*/route.ts` call OpenRouter server-side so `OPENROUTER_API_KEY`
+never reaches the client.
 
 ## Commands
 
@@ -22,6 +23,11 @@ call OpenRouter server-side so `OPENROUTER_API_KEY` never reaches the client.
 - `npm run build` — production build
 - `npm run start` — run the production build
 - `npm run lint` — ESLint (flat config in `eslint.config.mjs`)
+- `npx prisma migrate dev --name <description>` — create/apply a migration after editing
+  `prisma/schema.prisma`
+- `npx prisma generate` — regenerate the Prisma Client into `src/generated/prisma` (gitignored; run this
+  after cloning the repo or changing the schema, `migrate dev` also runs it automatically)
+- `npx prisma studio` — browse the local SQLite database
 
 No test runner is configured yet.
 
@@ -29,9 +35,46 @@ No test runner is configured yet.
 
 - `OPENROUTER_API_KEY` holds an OpenRouter API key. Next.js loads it from `.env` / `.env.local`
   automatically; both are gitignored (`.gitignore` blocks `.env` and `.env*.local`) — never commit either.
-- `.env.example` documents the expected variable name without a real value.
-- Only read the key in server-side code (Route Handlers, server components) — never prefix it with
-  `NEXT_PUBLIC_` and never pass it to client components.
+- `DATABASE_URL` points at the local SQLite file, `file:./prisma/dev.db`. The db file itself
+  (`prisma/dev.db`, contains real user emails/password hashes once the app is used) is gitignored.
+- `.env.example` documents the expected variable names without real values.
+- Only read secrets in server-side code (Route Handlers, server components) — never prefix them with
+  `NEXT_PUBLIC_` and never pass them to client components.
+
+## Auth & data model
+
+- `prisma/schema.prisma` defines `User`, `Session`, `SavedRecipe`. `SavedRecipe` stores
+  `ingredients`/`missingIngredients`/`steps` as JSON-stringified arrays (SQLite has no native scalar-list
+  type).
+- `src/lib/auth.ts` implements session-cookie auth from scratch (bcrypt password hashing, a random
+  128-bit token stored in the `Session` table, an httpOnly/`sameSite=lax` cookie named `session_token`).
+  No third-party auth library — this was a deliberate MVP choice, not a constraint; revisit if the app
+  needs OAuth/social login.
+- `getCurrentUser()` in `src/lib/auth.ts` is the single source of truth for "who's logged in" — call it
+  from Server Components/Route Handlers rather than re-deriving auth state.
+- `src/app/layout.tsx` is an async Server Component that resolves the current user once and passes the
+  email down to `src/components/Nav.tsx`; don't re-fetch `/api/auth/me` from the client for nav state.
+
+## Prisma 7 / this environment — gotchas
+
+Prisma 7 changed enough (vs. older Prisma versions) that its `prisma init` bundled reference docs at
+`.agents/skills/prisma-*/SKILL.md` (also symlinked under `.claude/skills/`, `.windsurf/skills/`) — check
+those before making schema/client changes, since APIs may differ from older training data. Key points
+already applied here:
+
+- `generator client { provider = "prisma-client" }` (not the old `prisma-client-js`) generates into an
+  explicit `output` path (`src/generated/prisma`, gitignored) instead of `node_modules`.
+- The datasource `url` lives in `prisma.config.ts` (reads `DATABASE_URL` via `dotenv/config`), not in
+  `schema.prisma`'s `datasource` block.
+- Prisma Client now requires an explicit driver adapter. **This project uses `@prisma/adapter-libsql` +
+  `@libsql/client`, not the more commonly documented `@prisma/adapter-better-sqlite3`** — `better-sqlite3`
+  needs a native build step (`node-gyp rebuild`) that this environment's npm install-scripts policy
+  blocks, so it never produces a working binary here. `@libsql/client` ships prebuilt platform binaries as
+  regular optional dependencies (no install script required) and works the same way for a local SQLite
+  file. If `better-sqlite3` ever seems worth revisiting, confirm native builds actually work in the target
+  environment first.
+- Client construction lives in `src/lib/db.ts` — reuse the exported `prisma` singleton rather than
+  constructing new `PrismaClient` instances (each one opens its own connection).
 
 ## OpenRouter integration notes
 

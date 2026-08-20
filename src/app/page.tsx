@@ -1,7 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import type { Recipe } from "./api/generate-recipes/route";
+
+type SaveStatus = "idle" | "saving" | "saved" | "unauthorized" | "error";
 
 export default function Home() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -17,6 +20,7 @@ export default function Home() {
   const [selectedRecipeIndex, setSelectedRecipeIndex] = useState<number | null>(null);
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState<string | null>(null);
+  const [saveStatus, setSaveStatus] = useState<Record<number, SaveStatus>>({});
 
   function handleFile(file: File) {
     setError(null);
@@ -103,6 +107,35 @@ export default function Home() {
       setRecipeError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했어요.");
     } finally {
       setRecipeLoading(false);
+    }
+  }
+
+  async function saveRecipe(index: number, recipe: Recipe) {
+    setSaveStatus((prev) => ({ ...prev, [index]: "saving" }));
+    try {
+      const res = await fetch("/api/recipes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: recipe.name,
+          ingredients,
+          missingIngredients: recipe.missing_ingredients,
+          steps: recipe.steps,
+          cookTimeMinutes: recipe.cook_time_minutes,
+          difficulty: recipe.difficulty,
+        }),
+      });
+      if (res.status === 401) {
+        setSaveStatus((prev) => ({ ...prev, [index]: "unauthorized" }));
+        return;
+      }
+      if (!res.ok) {
+        setSaveStatus((prev) => ({ ...prev, [index]: "error" }));
+        return;
+      }
+      setSaveStatus((prev) => ({ ...prev, [index]: "saved" }));
+    } catch {
+      setSaveStatus((prev) => ({ ...prev, [index]: "error" }));
     }
   }
 
@@ -281,6 +314,31 @@ export default function Home() {
                             </ol>
                           </div>
                         )}
+
+                        <div>
+                          {saveStatus[index] === "saved" ? (
+                            <p className="text-sm text-emerald-600">저장했어요.</p>
+                          ) : saveStatus[index] === "unauthorized" ? (
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                              저장하려면{" "}
+                              <Link href="/login" className="font-medium underline">
+                                로그인
+                              </Link>
+                              이 필요해요.
+                            </p>
+                          ) : (
+                            <button
+                              onClick={() => saveRecipe(index, recipe)}
+                              disabled={saveStatus[index] === "saving"}
+                              className="rounded-full border border-zinc-300 px-4 py-2 text-sm disabled:opacity-50 dark:border-zinc-700"
+                            >
+                              {saveStatus[index] === "saving" ? "저장 중..." : "레시피 저장"}
+                            </button>
+                          )}
+                          {saveStatus[index] === "error" && (
+                            <p className="mt-1 text-sm text-red-600">저장에 실패했어요. 다시 시도해주세요.</p>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
