@@ -58,7 +58,7 @@ export default async function RecipesPage() {
                         {recipe.difficulty !== "정보 없음" && recipe.difficulty}
                       </p>
                     </div>
-                    <DeleteRecipeButton recipeId={recipe.id} />
+                    <DeleteRecipeButton recipeId={recipe.id} recipeName={recipe.name} />
                   </div>
 
                   {ingredients.length > 0 && (
